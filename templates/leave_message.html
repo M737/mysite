@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    留言板
+{% endblock %}
+
+{% load like_tags %}
+{% load staticfiles %}
+{% block header_extend %}
+    <link rel="stylesheet" href="{% static 'blog/blog.css' %}">
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'blog/styles/purebasic.css' %}">
+    <script type="text/javascript" src="{% static 'blog/jquery-3.3.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/highlight.pack.js' %}"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+{% endblock %}
+
+{% block content %}
+    <div class="blog-article">
+    <!-- /.blog-article -->
+        <div class="breadcrumb-bar">
+            <!-- /.breadcrumb -->
+            <a href="{% url 'home' %} ">首页</a>
+            >
+            <a href="{% url 'blog_list' %}">博客列表</a>
+            >
+            留言板
+        </div>
+    <div class="col-xs-12 col-md-9">
+        <div class="blog-message">
+            <div class="message-area">
+                <h3 class="message-area-title">留言:</h3>
+                {% if user.is_authenticated %}
+                    <p>{{ user.username }},欢迎留言：</p>
+
+                    <form id="message_form" action="{% url 'update_message' %}" method="POST">
+                        <div id="reply_content_container" style="display: none">
+                            <p>回复:</p>
+                            <div id="reply_content"></div>
+                        </div>
+                        {% csrf_token %}
+                        {% for element in message_form %}
+                            {{ element }}
+                        {% endfor %}
+                        <input class="btn btn-default" style="margin-top: 4em; margin-left: 250px" type="submit" value="留言">
+                    </form>
+                {% else %}
+                    <ul class="not-login">
+                        <li>未登录，请</li>
+                        <li><form action="{% url 'login' %}" method="GET">
+                            {% csrf_token %}
+                             <button type="submit" class="btn btn-primary ">登录</button>
+                        </form></li>
+                            <li>或</li>
+                        <li><form action="{% url 'register' %}" method="POST">
+                            {% csrf_token %}
+                             <button type="submit" class="btn btn-warning ">注册</button>
+                        </form></li>
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="message-list">
+                <h3 class="messagelist">留言列表:</h3>
+                <div id="message_list">
+                    <ul>
+                    {% if messages %}
+                        {% for message in blog_pages %}
+                            <div id="root_{{ message.pk }}" class="message">
+                                <span>{{ message.user.username }}</span>
+                                <span>({{ message.message_time|date:"Y-m-d H:i:s" }})：</span>
+                                <div id="message_{{ message.pk}}">{{ message.message_text|safe|truncatechars:150 }}</div>
+                                <div class="like" onclick="likeChange(this,'{% get_content_type message %}', {{ message.pk }})">
+                                    <span class="glyphicon glyphicon-thumbs-up {% get_like_status message %}"></span>
+                                    <span class="liked-num">{% get_like_count message %}</span>
+                                </div>
+                                <a href="javascript: reply({{ message.pk }})">回复</a>
+
+
+                                {% for reply in message.parent_message.all %}
+                                    <div class="reply">
+                                        {{ message.user }}
+                                         回复{{ reply.user.username }}
+                                        ({{ reply.message_time|date:"Y-m-d H:i:s" }})：
+                                        <div id="message_{{ message.pk}}">{{ reply.message_text|safe|truncatechars:150}}</div>
+                                        <div class="like" onclick="likeChange(this,'{% get_content_type reply %}', {{ reply.pk }})">
+                                             <span class="glyphicon glyphicon-thumbs-up {% get_like_status reply %}"></span>
+                                             <span class="liked-num">{% get_like_count reply %}</span>
+                                         </div>
+                                        <a href="javascript: reply({{ message.pk }})">回复</a>
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                            <p><h5>----暂无留言，欢迎留言----</h5></p>
+                    {% endif %}
+                </ul>
+                </div>
+            </div>
+            <div class="paginator">
+                <ul class="pagination" >
+                    {#上一页按钮开始#}
+                    {# 如果当前页有上一页#}
+                    {% if blog_pages.has_previous %}
+                        {#  当前页的上一页按钮正常使用#}
+                        <li class="previous"><a href="/?page={{ blog_pages.previous_page_number }}">上一页</a></li>
+                    {% else %}
+                        {# 当前页的不存在上一页时,上一页的按钮不可用#}
+                        <li class="previous disabled"><a href="#">上一页</a></li>
+                    {% endif %}
+                    {#上一页按钮结束#}
+                    {# 页码开始#}
+                    {% for page in page_range %}
+
+                        {% if page == blog_pages.number %}
+                            <li class="item active"><a href="/leave_message/?page={{ page }}">{{ page }}</a></li>
+                        {% else %}
+                            {% ifequal page '...' %}
+                                <li class="item "><a >{{ page }}</a></li>
+                            {% else %}
+                                <li class="item "><a href="/leave_message/?page={{ page }}">{{ page }}</a></li>
+                            {% endifequal %}
+                        {% endif %}
+                    {% endfor %}
+                    {#页码结束#}
+                    {# 下一页按钮开始#}
+                    {% if blog_pages.has_next %}
+                        <li class="next"><a href="/leave_message/?page={{ blog_pages.next_page_number }}">下一页</a></li>
+                    {% else %}
+                        <li class="next disabled"><a href="#">下一页</a></li>
+                    {% endif %}
+                    {# 下一页按钮结束#}
+                </ul>
+                <div class="page-detail" >
+                    <p class="paginator-info" >
+                        共有{{ messages|length }} 条留言
+                        当前第{{ blog_pages.number }}页，
+                        共{{ paginator.num_pages }}页
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-0 col-md-3">
+        <!--（空白）-->
+    </div>
+
+{% endblock %}
+
+{% block script_extend %}
+<script type="text/javascript">
+    function likeChange(obj, content_type, object_id ){
+        var is_like = obj.getElementsByClassName('active').length == 0;
+        $.ajax({
+            url:"{% url 'like_change' %}",
+            type:'GET',
+            data:{
+                content_type:content_type,
+                object_id:object_id,
+                is_like:is_like
+            },
+            cache:false,
+            success:function(data){
+                console.log(data);
+                var like_status = $(obj.getElementsByClassName('glyphicon'));
+                if(data['status']=='SUCCESS'){
+                    //更新点赞状态
+                    if(is_like){
+                        like_status.addClass('active')
+                    }else {
+                        like_status.removeClass('active')
+                    }
+                    // 更新点赞数量
+                    var liked_num = $(obj.getElementsByClassName('liked-num'));
+                    liked_num.text(data['liked_num'])
+                }else{
+                    alert(data['message'])
+                }
+
+            },
+            error:function(xhr){
+                console.log(xhr)
+            }
+        });
+    }
+    $("#message_form").submit(function () {
+            // 更新数据到textarea
+            CKEDITOR.instances["id_message_text"].updateElement();
+            // 异步提交
+            $.ajax({
+                url: "{% url 'update_message' %}",
+                type: "POST",
+                data: $(this).serialize(),
+                cache: false,
+                success: function (data) {
+                    console.log(data);
+                    if (data['status'] == 'SUCCESS') {
+                        // var comment_html = "<div>" + data['user'] + "(" + data['comment_time'] + "):" +
+                        //    data['comment_text'] + "</div>" + "<div class='like'><span class='glyphicon glyphicon-thumbs-up>" +
+                        //    "</span> <span class='liked-num'>0</span> <a href=''>回复</a></div>";
+                        if ($('#reply_message_id').val() == '0'){
+                            //插入评论
+                            var message_html = '<div id="root_'+ data['pk']+
+                                'class="comment">'+
+                                    '<span>' + data['user']+'</span>'+
+                                    '<span>('+ data['message_time']+')：</span>'+
+                                    '<div id="comment_' +data['pk'] +'">'+ data['message_text']+ '</div>'+
+                                    '<div class="like"><span class="glyphicon glyphicon-thumbs-up"></span>' +
+                                    '<span class="liked-num"> 0 </span>' +
+                                    '<a href="javascript: reply('+ data['pk']+')">回复</a>';
+                            $("#message_list").prepend(message_html);
+                        }else{
+                           //插入回复
+                            var message_html = '<div class="reply"> <span>' + data['user'] + '</span>' +
+                                    '<span>回复' + data['reply_to'] + '</span>' +
+                                    '<span>('+ data['message_time']+')：' + '</span>' +
+                                    '<div id="message_' +data['pk'] +'">' + '</span>' +
+                                        '<span>' + data['message_text'] +
+                                    '</div>' +
+                                    '<div class="like">' +
+                                        '<span class="glyphicon glyphicon-thumbs-up"></span>' +
+                                        '<span class="liked-num"> 0 </span>' +
+                                    '</div>' +
+                                    '<a href="javascript: reply('+ data['pk'] +')">回复</a>' +
+                                '</div>';
+                            $("#root_" + data['root_pk']).append(message_html)
+                        }
+
+                        CKEDITOR.instances["id_message_text"].setData('');
+                        $('#reply_content_container').hide();
+                        $('#reply_message_id').val('0');
+                    }else{
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                            }
+                });
+            return false;
+        });
+    function reply(reply_message_id) {
+            $('#reply_message_id').val(reply_message_id);
+            var html = $('#message_' + reply_message_id).html();
+            $('#reply_content').html(html);
+            $('#reply_content_container').show();
+            $('html').animate({scrollTop: $('#message_form').offset().top - 60}, 300, function () {
+                CKEDITOR.instances['id_message_text'].focus();
+            })
+    }
+
+</script>
+{% endblock %}
+
+

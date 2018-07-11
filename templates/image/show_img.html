@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    图片展示
+{% endblock %}
+
+{% block content %}
+    <div class="img-uploader">
+        {% for img in imgs %}
+            {% if img.img_url %}
+                <img src="{{ img.img_url.url }}"><br/>
+            {% else %}
+                {{ img }}
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}

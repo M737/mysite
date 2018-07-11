@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    home|主页
+{% endblock %}
+
+{% load staticfiles %}
+{% block header_extend %}
+    <link rel="stylesheet" href="{% static 'blog/home.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="title">
+        <div class="manbu-image">
+            <img src="{% static 'images/manbu-logo100x100.jpg' %}"  width="100" height="100" alt="加载失败">
+        </div>
+    </div>
+    <div class="charts">
+        <div class="home-search-area" align="center">
+            <!-- /.search-area -->
+            <form action="{% url 'blog_list' %}" method="POST">
+                <div class="search-box">
+                {% csrf_token %}
+                    <input type="text" class="home-search-bar" name="keyword" value="请输入关键字进行搜索"
+                    onfocus='if(this.value=="请输入关键字进行搜索"){this.value="";}; '
+                    onblur='if(this.value==""){this.value="请输入关键字进行搜索";};'>
+                    <input type="submit" class="home-search-button" value="搜索">
+                </div>
+                <div class="search-tag">
+                    <button name="keyword" value="Python">Python</button>
+                    <button name="keyword" value="Django">Django</button>
+                    <button name="keyword" value="机器学习">机器学习</button>
+                    <button name="keyword" value="思想">思想</button>
+                    <button name="keyword" value="HTML">HTML</button>
+                    <button name="keyword" value="CSS">CSS</button>
+                    <button name="keyword" value="Javascript">Javascript</button>
+                    <button name="keyword" value="Linux">Linux</button>
+                    <button name="keyword" value="数据库">数据库</button>
+                    <button name="keyword" value="爬虫">爬虫</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

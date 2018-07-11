@@ -1,0 +1,49 @@
+div.title{
+    text-align: center;
+    margin-top: 10em;
+}
+
+div#container{
+
+    margin-top: 6em;
+}
+
+div.home-search-area{
+    margin-top: 2em;
+    width: 560px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+input{
+    float: left;
+}
+input.home-search-bar{
+    color: #808080;
+    width: 480px;
+    height: 40px;
+    padding: 10px;
+}
+
+input.home-search-button{
+    width: 80px;
+    height: 40px;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+
+}
+
+div.search-tag button{
+    margin-top: 1em;
+    margin-left: 2em;
+    color: #808080;
+    padding: 5px;
+    background: white;
+    border-radius:10px;
+}
+
+div.manbu-image{
+    width: 100px;
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: 2em;
+}

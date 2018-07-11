@@ -1,0 +1,21 @@
+table tbody tr td{
+    padding-left: 30px;
+    padding-right: 30px;
+    line-height: 1.42857143;
+    vertical-align: top;
+    border-top: 1px solid #ddd;}
+
+table thead tr th{
+    padding-left: 30px;
+    padding-right: 30px;
+    vertical-align: bottom;
+    border-bottom: 2px solid #ddd;}
+
+div.btn-audio{
+    width: 15px;
+    height: 15px;
+    background:url("../images/stop.png") no-repeat center bottom;
+    background-size:cover;
+    cursor: pointer;
+    display: inline-block;
+}

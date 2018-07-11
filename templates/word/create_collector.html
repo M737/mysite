@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block header_extend %}
+{% endblock %}
+
+{% block title %}
+    创建单词集
+{% endblock %}
+
+{% block content %}
+    <div class="col-md-4">
+    </div>
+    <div class="col-md-8">
+        <h2>创建单词集</h2>
+        <form action="" method="POST">
+            {% csrf_token %}
+            <ul>
+                <li><span>{{ collector_form.collector_name.label }}:</span>{{ collector_form.collector_name}}</li>
+            </ul>
+            <button class="btn-primary" type="submit">提交</button>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,14 @@
+table tbody tr td{
+    padding-left: 80px;
+    padding-right: 80px;
+    line-height: 1.42857143;
+    vertical-align: top;
+    border-top: 1px solid #ddd;
+}
+
+table thead tr th{
+    padding-left: 80px;
+    padding-right: 68px;
+    vertical-align: bottom;
+    border-bottom: 2px solid #ddd;
+}

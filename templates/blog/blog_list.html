@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    我的博客
+{% endblock %}
+
+{% load get_blog_img %}
+{% load staticfiles %}
+{% block header_extend %}
+    <link rel="stylesheet" href="{% static 'blog/blog.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="main">
+        <div class="col-md-9">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="breadcrumb-bar">
+                        <a href="{% url 'home' %}">首页</a>
+                        >
+                        <a href="{% url 'blog_list' %}">博客列表</a>
+                    </div>
+                </div>
+            </div>
+
+            {% for blog, comments_num in blog_pages_and_comments_nums %}
+                <div class="panel panel-default" style="margin-bottom: 10px">
+                    <div class="panel-body">
+                        <div class="col-xs-12 col-md-3" style="padding: 0">
+                            <div class="thumbnail" style="max-height: 120px">
+                                <img src="{% get_blog_img  blog.content %}"  width="180" height="120" alt="/">
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-9">
+                            <div class="blog-title">
+                                <a href="{% url 'blog_detail' blog.pk %}">
+                                    <h4>{{ blog.title }}</h4>
+                                </a>
+                            </div>
+                            <div class="blog-content-descraption">
+                                {{ blog.content|striptags|truncatechars:150|safe }}
+                            </div>
+                        </div>
+
+                        <div class="blog-info-description">
+                            <div class="col-xs-12 col-md-12">
+                                <ul class="blog-info-description">
+                                    <li><span class="glyphicon glyphicon-time"></span>发表日期：{{ blog.pub_date }}</li>
+                                    <li><span class="glyphicon glyphicon-tags"></span>分类：<a href="{% url 'blog_type' blog.blog_type.pk %}">{{ blog.blog_type }}</a></li>
+                                    <li><span class="glyphicon glyphicon-pencil"></span>评论：({{ comments_num|length }})</li>
+                                    <li><span class="glyphicon glyphicon-flag"></span>阅读:({{ blog.read_num }})</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="empty-blog" align="center">
+                    <p><-根据[<b>{{keyword}}</b>]未搜索到相关博客-></p>
+                    <p><a href="{% url 'blog_list' %}">点击查看其它博客</a></p>
+                </div>
+            {% endfor %}
+
+            <div class="paginator">
+                <ul class="pagination" >
+                    {#上一页按钮开始#}
+                    {# 如果当前页有上一页#}
+                    {% if blog_pages.has_previous %}
+                        {#  当前页的上一页按钮正常使用#}
+                        <li class="previous"><a href="/?page={{ blog_pages.previous_page_number }}">上一页</a></li>
+                    {% else %}
+                        {# 当前页的不存在上一页时,上一页的按钮不可用#}
+                        <li class="previous disabled"><a href="#">上一页</a></li>
+                    {% endif %}
+                    {#上一页按钮结束#}
+                    {# 页码开始#}
+                    {% for page in page_range %}
+
+                        {% if page == blog_pages.number %}
+                            <li class="item active"><a href="/blog/?page={{ page }}">{{ page }}</a></li>
+                        {% else %}
+                            {% ifequal page '...' %}
+                                <li class="item "><a >{{ page }}</a></li>
+                            {% else %}
+                                <li class="item "><a href="/blog/?page={{ page }}">{{ page }}</a></li>
+                            {% endifequal %}
+                        {% endif %}
+                    {% endfor %}
+                    {#页码结束#}
+                    {# 下一页按钮开始#}
+                    {% if blog_pages.has_next %}
+                        <li class="next"><a href="/blog/?page={{ blog_pages.next_page_number }}">下一页</a></li>
+                    {% else %}
+                        <li class="next disabled"><a href="#">下一页</a></li>
+                    {% endif %}
+                    {# 下一页按钮结束#}
+                </ul>
+                <div class="page-detail" >
+                    <p>
+                        共有{{ blogs.count }}篇博客，
+                        当前第{{ blog_pages.number }}页，
+                        共{{ paginator.num_pages }}页
+
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar">
+        <div class="col-lg-3">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-user"></span>
+                        关于作者</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="about-author">
+                    <!-- /.about-author -->
+                        <img src="{% static '/images/author.jpg' %}"  width="60" height="60" alt="/">
+                        {{ author }}
+                        <ul class="blogs-all-info">
+                            <li>博客：{{ blogs_count }}</li>
+                            <li>关注：{{ users|length }}</li>
+                            <li>评论:{{comments|length}}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="search-area" align="center">
+                <!-- /.search-area -->
+                <form action="?keyword" method="POST">
+                    {% csrf_token %}
+                    <input type="text" class="searchbar" name="keyword" value="请输入关键字进行搜索"
+                    onfocus='if(this.value=="请输入关键字进行搜索"){this.value="";}; '
+                    onblur='if(this.value==""){this.value="请输入关键字进行搜索";};'>
+                    <input type="submit" value="搜索">
+                </form>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-leaf"></span>
+                        博客分类
+                    </h3>
+
+                </div>
+                <div class="panel-body">
+                    <ul class="blog-type-list">
+                        {% for blog_type, blog_type_length in blog_type_and_length %}
+                            <a href="{% url 'blog_type' blog_type.pk %}">
+                                <li>{{ blog_type }}({{ blog_type_length }})</li>
+                            </a>
+                        {% empty %}
+                            <p>--暂无分类--</p>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                        最新评论
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <ul class="">
+                        {% for last_comment in last_comments %}
+                            {{ last_comment.user.username }}
+                            ({{ last_comment.comment_time|date:"Y-m-d H:i:s" }})：
+                            {{ last_comment.comment_text|safe }}
+                        {% empty %}
+                            <p>暂无评论</p>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-envelope"></span>
+                        最新留言
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <ul class="">
+                        {% for last_message in last_messages %}
+                            {{ last_message.user.username }}
+                            ({{ last_message.message_time|date:"Y-m-d H:i:s" }})：
+                            {{ last_message.message_text|safe }}
+                        {% empty %}
+                            <p>暂无留言</p>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

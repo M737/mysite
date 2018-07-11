@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    博客分类
+{% endblock %}
+
+{% load staticfiles %}
+{% block header_extend %}
+    <link rel="stylesheet" href="{% static 'blog/blog.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="breadcrumb-bar">
+        <a href="{% url 'home' %}">首页</a>
+        >
+        <a href="{% url 'blog_list' %}">博客列表</a>
+        >
+        {{ blog_type.type_name }}
+    </div>
+    <div>
+        <h3>{{ blog_type.type_name }}（共{{ blogs|length }}篇）</h3>
+        <hr>
+        {% for blog in blog_pages %}
+            <a href="{% url 'blog_detail' blog.pk %}">
+                <h3>{{ blog.title }}</h3>
+            </a>
+            <p>作者：{{ blog.author }}</p>
+            <p>发布时间：{{ blog.pub_date|date:"Y-m-d H:i:s" }}</p>
+            <p>{{  blog.content|striptags|truncatechars:150|safe  }}</p>
+        {% endfor %}
+    </div>
+    <div class="paginator">
+        <ul class="pagination">
+            {#上一页按钮开始#}
+            {# 如果当前页有上一页#}
+            {% if contact.has_previous %}
+                {#  当前页的上一页按钮正常使用#}
+                <li class="previous"><a href="/?page={{ contact.previous_page_number }}">上一页</a></li>
+            {% else %}
+                {# 当前页的不存在上一页时,上一页的按钮不可用#}
+                <li class="previous disabled"><a href="#">上一页</a></li>
+            {% endif %}
+            {#上一页按钮结束#}
+            {# 页码开始#}
+            {% for page in page_range %}
+
+                {% if page == blog_page.number %}
+                    <li class="item active"><a href="/blog/type/{{ blog_type.pk }}/?page={{ page }}">{{ page }}</a></li>
+                {% else %}
+                    <li class="item"><a href="/blog/type/{{ blog_type.pk }}/?page={{ page }}">{{ page }}</a></li>
+
+                {% endif %}
+            {% endfor %}
+            {#页码结束#}
+            {# 下一页按钮开始#}
+            {% if contact.has_next %}
+                <li class="next"><a href="/?page={{ contact.next_page_number }}">下一页</a></li>
+            {% else %}
+                <li class="next disabled"><a href="#">下一页</a></li>
+            {% endif %}
+            {# 下一页按钮结束#}
+        </ul>
+        <div class="page-detail" >
+            <p>
+                共有{{ blogs.count }}篇博客，
+                当前第{{ blog_pages.number }}页，
+                共{{ paginator.num_pages }}页
+            </p>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+{% block header_extend %}
+    <link rel="stylesheet" href="{% static "word/word.css" %}">
+{% endblock %}
+
+{% block title %}
+    单词集
+{% endblock %}
+
+{% block content %}
+    <div class="col-md-4">
+    </div>
+    <div class="col-md-8">
+        <h3>{{ collector.collector_name }}</h3>
+        {% for word in words %}
+            <p>{{ word.word_name }}:{{ word.content }}</p>
+        {% endfor %}
+    </div>
+{% endblock %}

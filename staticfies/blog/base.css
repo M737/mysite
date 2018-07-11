@@ -1,0 +1,67 @@
+ul{
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+}
+ul.log-info{
+    color: #ffffff;
+    margin-top: 1em;
+    /*margin-left: 50em;*/
+}
+ul.log-info li{
+    display: inline-block;
+    margin-left: 1em;
+}
+ul.login-area{
+    list-style-type: none;
+}
+ul.login-area li{
+    margin-bottom: 0.5em;
+}
+ul.register-area{
+    list-style-type: none;
+}
+ul.register-area li{
+    margin-bottom: 0.5em;
+}
+
+ul.login-area span{
+    margin-right: 6em;
+}
+
+a.music-icon{
+    color:#ffffff;
+    text-decoration:none; }
+a.music-icon:hover{
+    color:#28a4c9;
+    text-decoration:underline;}
+
+a.log-status{
+    color: #28a4c9;
+    text-decoration:none;
+}
+
+*{
+  margin: 0;
+  padding: 0;
+}
+
+html, body, form {
+  height: 100%;
+}
+
+.Wrapper{
+  min-height: 100%;
+  margin-bottom: 2em;
+}
+
+  .Wrapper.FooterPush {
+    height: 100px; /* Footer 的高度 */
+  }
+
+.Footer {
+  clear: both; /* 清除浮动元素格式 */
+  position: relative;
+  margin-top: -40px; /* Footer 高度的负值 */
+  height: 40px;
+}

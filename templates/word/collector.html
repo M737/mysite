@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+{% block header_extend %}
+    <link rel="stylesheet" href="{% static "word/word.css" %}">
+{% endblock %}
+
+{% block title %}
+    单词集
+{% endblock %}
+
+{% block content %}
+    <div class="col-md-4">
+    </div>
+    <div class="col-md-8">
+        {% for collector in collectors %}
+            <h3><a href="{% url 'collector_detail' collector.id %}">{{ collector.collector_name }}</a>
+            <a href="{% url 'set_default_collector' collector.id %}">默认</a></h3>
+            {{ collector.collect_time }}
+
+            <br>
+            {% for word in collector.word.all %}
+                <p>{{ word.word_name }} : {{ word.content }}</p>
+
+            {% endfor %}
+        {% endfor %}
+    </div>
+{% endblock %}

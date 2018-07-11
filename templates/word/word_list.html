@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block header_extend %}
+{% endblock %}
+
+{% block title %}
+    单词首页
+{% endblock %}
+
+{% block content %}
+    <div class="col-md-4">
+        <form action="" method="POST">
+            <div class="search-box">
+            {% csrf_token %}
+                <input type="text" class="home-search-bar" name="keyword" value="请输入关键字进行搜索"
+                onfocus='if(this.value=="请输入关键字进行搜索"){this.value="";}; '
+                onblur='if(this.value==""){this.value="请输入关键字进行搜索";};'>
+                <input type="submit" class="home-search-button" value="搜索">
+            </div>
+        </form>
+        <br>
+        <p><a href="{% url 'create_word_set' %}">新增单词集</a></p>
+        <br>
+        <p><a href="{% url 'create_collector' %}">新增收藏集</a></p>
+    </div>
+    <div class="col-md-8">
+        <h3>单词集</h3>
+        {% for word_set in word_sets %}
+            <ul>
+                <li><a href="{% url 'word_set' word_set.id %}">{{ word_set }}</a></li>
+            </ul>
+
+        {% empty %}
+            <h3>暂无单词集， 请<span><a href="{% url 'create_word_set' %}">创建</a></span>单词集</h3>
+        {% endfor %}
+
+        <br>
+        <h3><a href="{% url 'my_collector' %}">收藏集</a></h3>
+        {% for collector in collectors %}
+            <p><a href="{% url 'collector_detail' collector.id %}">{{ collector.collector_name }}</a></p>
+        {% empty %}
+            {% if request.user.is_authenticated %}
+                <p>暂无收藏集,默认为“我的收藏”，可自定义<a href="{% url 'create_collector' %}">创建</a>多个收藏集</p>
+            {% else %}
+                <p>你还没有登录哦，前往<a href="{% url 'register' %}">注册</a>或者<a href="{% url 'login' %}">登录</a></p>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}

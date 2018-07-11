@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% load pronunciation %}
+{% load staticfiles %}
+{% block header_extend %}
+    <link rel="stylesheet" href="{% static 'word/word.css'  %}">
+{% endblock %}
+
+{% block title %}
+    单词首页
+{% endblock %}
+
+{% block content %}
+    <div class="col-md-4">
+        <form action="" method="POST">
+            <div class="search-box">
+            {% csrf_token %}
+                <input type="text" class="home-search-bar" name="keyword" value="请输入关键字进行搜索"
+                onfocus='if(this.value=="请输入关键字进行搜索"){this.value="";}; '
+                onblur='if(this.value==""){this.value="请输入关键字进行搜索";};'>
+                <input type="submit" class="home-search-button" value="搜索">
+            </div>
+        </form>
+        <p><a href="{% url 'create_word_set' %}">新增单词集</a></p>
+    </div>
+    <div class="col-md-8">
+        <h3>{{ word_set.set_name }}</h3>
+        <br>
+{#        <p>{{ word.word_name}}</p>#}
+        <div class="pronunciation">
+            <span>美式：</span>
+            <div class="btn-audio">
+                <audio  id="mp3Btn">
+                  <source  src="{% word_pronunciation word.word_name 'en' %}" type="audio/mpeg">
+                </audio>
+            </div>
+{#            <span>英式：</span>#}
+{#            <div class="btn-audio">#}
+{#                <audio id="mp3Btn">#}
+{#                  <source src="{% word_pronunciation word.word_name 'uk' %}" type="audio/mpeg">#}
+{#                </audio>#}
+{#            </div>#}
+        </div>
+
+        <p>{{ word.content }}</p>
+
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ write_form.write_word.label }}:{{ write_form.write_word }}
+            <input type="submit" value="提交">
+        </form>
+
+        {% if message %}
+            {% if not is_correct %}
+                <p class="text-danger">{{ message }}</p>
+                提示：{{ word.word_name.0 }}
+            {% else %}
+                <p class="text-success">{{ message }}</p>
+            {% endif %}
+        {% endif %}
+        <br>
+        <p><a href="{% url 'content_to_write_word' word_set.id previous_word_id %}">前一个单词</a></p>
+        <p><a href="{% url 'content_to_write_word' word_set.id next_word_id %}">后一个单词</a></p>
+        <p><a href="{% url 'content_to_write_word' word_set.id random_word_id %}">随机单词</a></p>
+    </div>
+{% endblock %}
+
+{% block script_extend %}
+    <script type="text/javascript">
+        $(function(){
+            //播放完毕
+            $('#mp3Btn').on('ended', function() {
+                console.log("音频已播放完成");
+                $('.btn-audio').css({'background':'url({% static "images/stop.png" %}) no-repeat center bottom','background-size':'cover'});
+            });
+            //播放器控制
+            var audio = document.getElementById('mp3Btn');
+            audio.volume = .3;
+            $('.btn-audio').click(function() {
+                event.stopPropagation();//防止冒泡
+                if(audio.paused){ //如果当前是暂停状态
+                    $('.btn-audio').css({'background':'url({% static "images/start.png" %}) no-repeat center bottom','background-size':'cover'});
+                    audio.play(); //播放
+                    return;
+                }else{//当前是播放状态
+                    $('.btn-audio').css({'background':'url({% static "images/stop.png" %}) no-repeat center bottom','background-size':'cover'});
+                    audio.pause(); //暂停
+                }
+            });
+        })
+    </script>
+{% endblock %}
+
+

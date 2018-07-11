@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    兜兜
+{% endblock %}
+
+{% load staticfiles %}
+{% block header_extend %}
+    <link rel="stylesheet" href="{% static "doudou/grid_system.css"  %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="grid">
+        <div class="col-md-9">
+            <div class="input-box">
+                <form action="{% url 'grid_system' %}" method="POST">
+                    <div class="input-group">
+                        {% csrf_token %}
+                        <input type="number" class="form-control" aria-label="..." name="W" >
+                        <div class="input-group-btn">
+                            <input type="submit" class="btn btn-default" value="计算">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li><a href="{% url 'grid_with_width' 1920 %}">1920</a></li>
+                                <li><a href="{% url 'grid_with_width' 1600 %}">1600</a></li>
+                                <li><a href="{% url 'grid_with_width' 1440 %}">1440</a></li>
+                                <li><a href="{% url 'grid_with_width' 1280 %}">1280</a></li>
+                                <li><a href="{% url 'grid_with_width' 1024 %}">1024</a></li>
+                            </ul>
+                            <!-- Button and dropdown menu -->
+                        </div>
+                        <div >
+                            <div class="col-md-2">
+                                <label for="n">n</label>
+                                <input id="n" type="number" class="form-control" name="n" >
+                            </div>
+                            <div class="col-md-2">
+                                <label for="a">a</label>
+                                <input id="a" type="number" class="form-control" name="a" >
+                            </div>
+                            <div class="col-md-2">
+                                <span><label for="i">i</label></span>
+                                <span><input id="i" type="number" class="form-control" name="i" ></span>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="l">s</label>
+                                <input id="l" type="number" class="form-control" name="l" >
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="result-table">
+                <div class="panel panel-default">
+                <!-- Default panel contents -->
+                    <div class="panel-heading">结果如下：(共有{{ items|length }}条结果)</div>
+
+                    <!-- Table -->
+                    <table border="1">
+                        <thead>
+                            <tr>
+                                <th>数量：n</th>
+                                <th>宽度：a</th>
+                                <th>间隔：i</th>
+                                <th>安全距离：s</th>
+                            </tr>
+                        </thead>
+
+                        {% for item in items %}
+                            <tbody>
+                            <tr>
+                                <td>{{ item.n }}</td>
+                                <td>{{ item.a }}</td>
+                                <td>{{ item.i }}</td>
+                                <td>{{ item.l }}</td>
+                            </tr>
+                            </tbody>
+                        {% empty %}
+                            <p>未能匹配到合适的结果，请核对数值再进行计算</p>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script_extend %}
+    <script type="text/javascript">
+
+    </script>
+{% endblock %}
