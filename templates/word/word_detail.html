@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% load pronunciation %}
+{% load staticfiles %}
+{% block header_extend %}
+    <link rel="stylesheet" href="{% static 'word/word.css' %}">
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+    <script type="text/javascript" src="{% static 'word/word.js' %}"></script>
+
+{% endblock %}
+
+{% block title %}
+    单词首页
+{% endblock %}
+
+{% block content %}
+
+    <div class="col-md-8">
+        <ol class="breadcrumb">
+            <span>当前位置：</span>
+            <li><a href="{% url 'word_list' %}">单词首页</a></li>
+            <li>单词集</li>
+            <li><a href="{% url 'word_set' word_set.id %}">{{ word_set.set_name }}</a></li>
+            <li>记忆单词</li>
+        </ol>
+        <br>
+        <p>
+            <strong>{{ word.word_name}}</strong>
+            {% if word.id in collector_word_ids %}
+                <span class="text"><a href="{% url 'add_to_collector' word.id %}"><span class="glyphicon glyphicon-minus-sign" style="color: red"></span></a></span>
+            {% else %}
+                <span class="text"><a href="{% url 'add_to_collector' word.id %}"><span class="glyphicon glyphicon-plus-sign"></span></a></span>
+            {% endif %}
+
+        </p>
+          <div class="pronunciation">
+            <span>美式：</span>
+            <div id="btnAudio" class="btn-en-audio" onclick="play('btn-en-audio', 'mp3EnBtn')">
+                <audio  id="mp3EnBtn">
+                  <source  src="{% word_pronunciation word.word_name 'en' %}" type="audio/mpeg">
+                </audio>
+            </div>
+            <span>英式：</span>
+            <div id="btnAudio" class="btn-uk-audio" onclick="play('btn-uk-audio', 'mp3UkBtn')">
+                <audio id="mp3UkBtn">
+                  <source src="{% word_pronunciation word.word_name 'uk' %}" type="audio/mpeg">
+                </audio>
+            </div>
+        </div>
+        <p>{{ word.content }}</p>
+        <br>
+        <h4>例句：</h4>
+        <p>----暂无资源----</p>
+        <br><br>
+
+        {% ifnotequal first_word.id word.id %}
+            <p><a href="{% url 'word_detail' word_set.id previous_word_id %}">前一个单词</a></p>
+        {% else %}
+            <p>这是第一个单词</p>
+        {% endifnotequal %}
+
+        {% ifnotequal  last_word.id word.id %}
+            <p><a href="{% url 'word_detail' word_set.id next_word_id %}">后一个单词</a></p>
+        {% else %}
+            <p>这是最后一个单词</p>
+        {% endifnotequal %}
+        <p><a href="{% url 'word_detail' word_set.id random_word_id %}">随机单词</a></p>
+
+        <div class="remark-box">
+            <h3>标记单词</h3>
+            <br>
+            {% if user.is_authenticated %}
+                <form action="{% url 'update_remark' %}" method="POST">
+                    {% csrf_token %}
+                    {% for field in remark_form %}
+                        {{ field }}
+                    {% endfor %}
+                    <input type="submit" class="btn btn-danger" style="margin-top: 4em" value="标记">
+                </form>
+            {% else %}
+                <p>
+                    <span>未登录，请<a class="btn btn-primary" href="{% url 'login' %}">登录</a>或 <a class="btn btn-warning" href="{% url 'register' %}">注册</a></span>
+                </p>
+            {% endif %}
+            <div class="remark-list">
+                {% for remark in remarks %}
+                    {{ remark.remark_time|date:"Y-m-d H:i:s" }}
+                    {{ remark.remark_text|safe }}
+
+                {% empty %}
+                    <p>暂无标记</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+    </div>
+{% endblock %}
+
+{% block script_extend %}
+    <script type="text/javascript">
+        function play(cls, id) {
+            //播放完毕
+            var audio = document.getElementById(id);
+
+            $('#'+id).on('ended', function() {
+                console.log("音频已播放完成");
+                $('.' + cls).css({'background':'url({% static "images/stop.png" %}) no-repeat center bottom','background-size':'cover'});
+            });
+            //播放器控制
+
+            audio.volume = .3;
+            event.stopPropagation();//防止冒泡
+            if(audio.paused){ //如果当前是暂停状态
+                $('.' + cls).css({'background':'url({% static "images/start.png" %}) no-repeat center bottom','background-size':'cover'});
+                audio.play(); //播放
+            }else{//当前是播放状态
+                $('.' + cls).css({'background':'url({% static "images/stop.png" %}) no-repeat center bottom','background-size':'cover'});
+                audio.pause(); //暂停
+            }
+        }
+    </script>
+{% endblock %}

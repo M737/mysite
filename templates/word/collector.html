@@ -10,9 +10,12 @@
 {% endblock %}
 
 {% block content %}
-    <div class="col-md-4">
-    </div>
     <div class="col-md-8">
+        <ol class="breadcrumb">
+            <span>当前位置：</span>
+            <li><a href="{% url 'word_list' %}">单词首页</a></li>
+            <li>收藏集</li>
+        </ol>
         {% for collector in collectors %}
             <h3><a href="{% url 'collector_detail' collector.id %}">{{ collector.collector_name }}</a>
             <a href="{% url 'set_default_collector' collector.id %}">默认</a></h3>
@@ -25,4 +28,5 @@
             {% endfor %}
         {% endfor %}
     </div>
+    <div class="col-md-4"></div>
 {% endblock %}

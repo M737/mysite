@@ -10,13 +10,11 @@
 {% endblock %}
 
 {% block content %}
-    <div class="breadcrumb-bar">
-        <a href="{% url 'home' %}">首页</a>
-        >
-        <a href="{% url 'blog_list' %}">博客列表</a>
-        >
-        {{ blog_type.type_name }}
-    </div>
+    <ol class="breadcrumb">
+        <span>当前位置：</span>
+        <li><a href="{% url 'blog_list' %}">博客首页</a></li>
+        <li>{{ blog_type.type_name }}</li>
+    </ol>
     <div>
         <h3>{{ blog_type.type_name }}（共{{ blogs|length }}篇）</h3>
         <hr>

@@ -20,13 +20,12 @@
     <div class="col-md-8">
         <div class="blog-article">
             <!-- /.blog-article -->
-            <div class="breadcrumb-bar">
-                <a href="{% url 'home' %}">首页</a>
-                >
-                <a href="{% url 'blog_list' %}">博客列表</a>
-                >
-                {{ blog.title }}
-            </div>
+            <ol class="breadcrumb">
+                <span>当前位置：</span>
+                <li><a href="{% url 'blog_list' %}">博客首页</a></li>
+                <li>{{ blog.title }}</li>
+            </ol>
+
             {% if blog.is_original %}
                 <h3>{{ blog.title }}</h3>
                 <ul class="blog-info-description">
@@ -88,26 +87,16 @@
                         {% for fields in comment_form %}
                             {{ fields }}
                         {% endfor %}
+                        <span>{{ comment_form.non_field_errors }}</span>
                         <input class="btn btn-primary" style="margin-top: 4em; margin-left: 250px" type="submit"
                                value="评论">
                     </form>
                 {% else %}
-                    <ul class="not-login">
-                        <li>未登录，请</li>
-                        <li>
-                            <form action="{% url 'login' %}" method="POST">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-primary ">登录</button>
-                            </form>
-                        </li>
-                        <li>或</li>
-                        <li>
-                            <form action="{% url 'register' %}" method="POST">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-warning ">注册</button>
-                            </form>
-                        </li>
-                    </ul>
+                    <div class="not-login">
+                        <p>
+                            <span>未登录，请<a class="btn btn-primary" href="{% url 'login' %}">登录</a>或 <a class="btn btn-warning" href="{% url 'register' %}">注册</a></span>
+                        </p>
+                    </div>
                 {% endif %}
             </div>
 
@@ -121,7 +110,7 @@
                                     <span>{{ comment.user.username }}</span>
                                     <span>({{ comment.comment_time|date:"Y-m-d H:i:s" }})：</span>
                                     <div id="comment_{{ comment.pk }}">
-                                        {{ comment.comment_text|safe|truncatechars:60 }}
+                                        {{ comment.comment_text|safe|truncatechars:300 }}
                                     </div>
 
                                     <div class="like"

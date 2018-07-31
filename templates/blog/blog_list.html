@@ -15,22 +15,16 @@
 <div class="container">
     <div class="main">
         <div class="col-md-9">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <div class="breadcrumb-bar">
-                        <a href="{% url 'home' %}">首页</a>
-                        >
-                        <a href="{% url 'blog_list' %}">博客列表</a>
-                    </div>
-                </div>
-            </div>
-
+            <ol class="breadcrumb">
+                <span>当前位置：</span>
+                <li>博客首页</li>
+            </ol>
             {% for blog, comments_num in blog_pages_and_comments_nums %}
                 <div class="panel panel-default" style="margin-bottom: 10px">
                     <div class="panel-body">
-                        <div class="col-xs-12 col-md-3" style="padding: 0">
-                            <div class="thumbnail" style="max-height: 120px">
-                                <img src="{% get_blog_img  blog.content %}"  width="180" height="120" alt="/">
+                        <div class="col-xs-12 col-md-3" style="padding: 0; ">
+                            <div class="thumbnail" style="max-height: 120px;border: 0;overflow: hidden">
+                                <img id="thumbnail" src="{% get_blog_img  blog.content %}"  width="200" height="140" alt="缩略图">
                             </div>
                         </div>
                         <div class="col-xs-12 col-md-9">
@@ -110,7 +104,7 @@
     </div>
     <div class="sidebar">
         <div class="col-lg-3">
-            <div class="panel panel-default">
+            <div class="panel panel-primary">
                 <div class="panel-heading">
                     <h3 class="panel-title">
                         <span class="glyphicon glyphicon-user"></span>
@@ -133,13 +127,30 @@
                 <!-- /.search-area -->
                 <form action="?keyword" method="POST">
                     {% csrf_token %}
-                    <input type="text" class="searchbar" name="keyword" value="请输入关键字进行搜索"
-                    onfocus='if(this.value=="请输入关键字进行搜索"){this.value="";}; '
-                    onblur='if(this.value==""){this.value="请输入关键字进行搜索";};'>
-                    <input type="submit" value="搜索">
+                    <div class="input-group">
+                         <input type="text" name="keyword" class="form-control" placeholder="请输入关键字进行搜索...">
+                         <span class="input-group-btn">
+                             <input  class="btn btn-default" type="submit" value="搜索">
+                         </span>
+                    </div>
                 </form>
             </div>
-            <div class="panel panel-default">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                        小仓鼠
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <object style="outline: none;" data="{% static 'swf/hamster.swf' %}" type="application/x-shockwave-flash" width="220px">
+                        <param name="movie" value="{% static 'swf/hamster.swf' %}">
+                        <param name="AllowScriptAccess" value="always">
+                        <param name="wmode" value="opaque">
+                    </object>
+                </div>
+            </div>
+            <div class="panel panel-info">
                 <div class="panel-heading">
                     <h3 class="panel-title">
                         <span class="glyphicon glyphicon-leaf"></span>
@@ -159,7 +170,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="panel panel-default">
+            <div class="panel panel-warning">
                 <div class="panel-heading">
                     <h3 class="panel-title">
                         <span class="glyphicon glyphicon-pencil"></span>
@@ -178,7 +189,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="panel panel-default">
+            <div class="panel panel-danger">
                 <div class="panel-heading">
                     <h3 class="panel-title">
                         <span class="glyphicon glyphicon-envelope"></span>
@@ -201,3 +212,4 @@
     </div>
 </div>
 {% endblock %}
+

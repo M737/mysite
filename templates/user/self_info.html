@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+{% load str_replace %}
+{% block header_extend %}
+    <style>
+        .modal-footer{
+            border-top: 0;
+            padding-top: 5px;
+        }
+    </style>
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor-init.js" %}"></script>
+    <script type="text/javascript" src="{% static "ckeditor/ckeditor/ckeditor.js" %}"></script>
+{% endblock %}
+{% block title %}
+    我的博客
+{% endblock %}
+
+
+{% block content %}
+    {% if is_created %}
+        <h3>个人资料</h3> <span><a class="edit">编辑</a></span>
+        <hr>
+        <ul>
+            <li>
+                <p>{% static photo as picture %}</p>
+                <span>头像：</span><img id="thumbnail" src="{% replace picture %}" alt="头像" width="100" height="100" class="img-circle">
+                <span style="display: none" class="edit-btn"><button  type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#changePhoto">修改头像</button></span>
+            </li>
+            <li>
+                <span>用户名：{{ profile.user.username }}</span>
+            </li>
+            <li>
+                <span>昵称：{{ profile.nickname }}</span>
+                <span style="display: none" class="edit-btn"><button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#changeNickname">修改昵称</button></span>
+            </li>
+            <li>
+                <span>邮箱：{{ profile.user.email }}</span>
+                {% if not profile.is_bind %}
+                    <span style="display: none" class="edit-btn"><button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#bindEmail">绑定邮箱</button></span>
+                {% else %}
+                    <span class="glyphicon glyphicon-ok" title="已绑定"></span>
+                {% endif %}
+            </li>
+
+            <li>
+                <span>个人简介：{{ profile.resume }}</span>
+                <span style="display: none" class="edit-btn"><button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#changeResume">修改简介</button></span>
+            </li>
+        </ul>
+
+        <h3>心情记录</h3>
+        <span class="edit-btn"><button  type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#writeMood">记录心情</button></span>
+        <hr>
+        {% for mood in moods %}
+            <ul>
+                <li><span>{{ mood.mood_time }}:</span>{{ mood.mood_content|safe|truncatechars:500 }}</li>
+            </ul>
+        {% empty %}
+            <p>暂无心情记录</p>
+        {% endfor %}
+    {% else %}
+        <a href="{% url 'create_self_info' %}">创建用户资料</a>
+    {% endif %}
+
+    <!-- modal changeNickname -->
+    <div class="modal fade" id="changeNickname" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">修改昵称</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'change_nickname' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="newNickname" class="control-label">新的昵称</label>
+                            <input type="text" class="form-control" id="newNickname" name="nickname">
+{#                            <button type="submit" class="btn btn-primary pull-right">保存</button>#}
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">退出</button>
+                            <button type="submit" class="btn btn-primary" >保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal changeNickname  end-->
+
+    <!-- modal changeResume -->
+    <div class="modal fade" id="changeResume" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">修改简介</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'change_resume' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="newResume" class="control-label">新的简介</label>
+                            <textarea  class="form-control" id="newResume" name="resume" rows="4"></textarea>
+{#                            <button type="submit" class="btn btn-primary pull-right">保存</button>#}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">退出</button>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal changeResume end-->
+
+    <!-- modal changePhoto-->
+    <div class="modal fade" id="changePhoto" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">修改头像</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'change_photo' %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="newPhoto" class="control-label">新的头像</label>
+                            <input type="file" class="form-control" id="newPhoto" name="photo">
+{#                            <button type="submit" class="btn btn-primary pull-right">保存</button>#}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">退出</button>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal changePhoto end-->
+
+    <!-- modal bindEmail-->
+    <div class="modal fade" id="bindEmail" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">绑定邮箱</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'bind_email' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="email" class="control-label">邮箱</label>
+                            <input type="email" class="form-control" id="email" name="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="captcha" class="control-label">验证码</label>
+                            <input type="text" class="form-control" id="captcha" name="captcha">
+                        </div>
+                        <div class="tips" style="color: #ff0000"></div>
+                        <div class="modal-footer">
+
+                            <button type="submit" class="btn btn-primary pull-left" id="sendCode">发送验证码</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">退出</button>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal bindEmail end-->
+
+    <!-- modal writeMood-->
+    <div class="modal fade" id="writeMood" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">记录心情</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'write_mood' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ mood_form.mood_content }}
+                        </div>
+                        <div class="tips" style="color: #ff0000"></div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">退出</button>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal writeMood end-->
+
+{% endblock %}
+
+{% block script_extend %}
+    <script type="text/javascript">
+        $(function(){
+            $('.edit').css({
+                'cursor': 'pointer'
+            });
+            $('.edit').click(function () {
+                $('.edit-btn').toggle()
+            });
+        });
+
+        $(function () {
+            $('#sendCode').click(function () {
+                var email = $('#email').val();
+                console.log(email);
+                if (email==''){
+                    $('.tips').text('*邮箱不能为空')
+                    return false
+                }
+                $.ajax({
+                    url:"{% url 'send_code' %}",
+                    style:"GET",
+                    data: {'email': email},
+                    cache:false,
+                    success: function (data) {
+                        if (data['status'] == 'SUCCESS'){
+                        $('.tips').text('*验证码发送成功')
+                        }
+                    }
+                    });
+                return false
+            })
+        });
+        $(function(){
+            $('#thumbnail').mouseover(function() {
+                $(this).css({'width':200,'height':200})
+            });
+            $('#thumbnail').mouseout(function () {
+                $(this).css({'width':100,'height':100})
+
+            })
+        })
+    </script>
+{% endblock %}
+

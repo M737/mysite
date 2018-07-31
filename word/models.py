@@ -34,7 +34,10 @@ class Collector(models.Model):
     collector_name = models.CharField(max_length=50)
     collect_time = models.DateTimeField(auto_now_add=True)
     collect_user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-    word = models.ManyToManyField(Word, null=True)
+    word = models.ManyToManyField(Word)
+
+    class Meta:
+        ordering = ['-collect_time']
 
     def __str__(self):
         return self.collector_name

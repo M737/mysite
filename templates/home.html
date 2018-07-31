@@ -19,13 +19,23 @@
         <div class="home-search-area" align="center">
             <!-- /.search-area -->
             <form action="{% url 'blog_list' %}" method="POST">
-                <div class="search-box">
                 {% csrf_token %}
-                    <input type="text" class="home-search-bar" name="keyword" value="请输入关键字进行搜索"
-                    onfocus='if(this.value=="请输入关键字进行搜索"){this.value="";}; '
-                    onblur='if(this.value==""){this.value="请输入关键字进行搜索";};'>
-                    <input type="submit" class="home-search-button" value="搜索">
+                <div class="search-box">
+                     <div class="input-group">
+                         <input type="text" name="keyword" class="form-control" placeholder="请输入关键字进行搜索...">
+                         <span class="input-group-btn">
+                             <input  class="btn btn-default" type="submit" value="搜索">
+                         </span>
+                    </div>
                 </div>
+{#                <div class="search-box">#}
+{#                {% csrf_token %}#}
+{#                    #}
+{#                    <input type="text" class="home-search-bar" name="keyword" value="请输入关键字进行搜索"#}
+{#                    onfocus='if(this.value=="请输入关键字进行搜索"){this.value="";}; '#}
+{#                    onblur='if(this.value==""){this.value="请输入关键字进行搜索";};'>#}
+{#                    <input type="submit" class="home-search-button" value="搜索">#}
+{#                </div>#}
                 <div class="search-tag">
                     <button name="keyword" value="Python">Python</button>
                     <button name="keyword" value="Django">Django</button>

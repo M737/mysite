@@ -10,50 +10,60 @@
 {% endblock %}
 
 {% block content %}
-    <div class="col-md-4">
-    </div>
+
     <div class="col-md-8">
-        <div class="table">
-            <table>
+        <ol class="breadcrumb">
+            <span>当前位置：</span>
+            <li><a href="{% url 'word_list' %}">单词首页</a></li>
+            <li>单词集</li>
+            <li>{{ word_set.set_name }}</li>
+        </ol>
+        <div class="tables">
             {% ifequal words.all.count 0 %}
                 <h3>暂未添加单词，请<span><a href="{% url 'modify_word_set' word_set_id %}">添加</a></span></h3>
 
             {% else %}
-                <thead>
-                    <tr>
-                        <th>收藏</th>
-                        <th>单词</th>
-                        <th>释义</th>
-                    </tr>
-                </thead>
+                <div class="function-area">
+                    <ul>
+                        <li><a class="btn btn-primary" href="{% url 'memorizing_cards' word_set_id  %}">卡片记忆</a></li>
+                        <li><a class="btn btn-success" href="{% url 'content_to_write_word' word_set_id first_word.id %}">根据释义写单词</a></li>
+                        <li><a class="btn btn-info" href="{% url 'word_to_choice_content' word_set_id first_word.id %}">根据单词选释义</a></li>
+                        {% ifequal request.user word_set.create_user %}
+                            <li><a class="btn btn-warning" href="{% url 'modify_word_set' word_set_id %}">新增单词</a></li>
+                            <li><a class="btn btn-danger" id="delWord">删除单词</a></li>
+                        {% endifequal %}
 
-                <a href="{% url 'memorizing_words' word_set_id random_word_id %}">随机记忆单词</a>
-                |
-                <a href="{% url 'content_to_write_word' word_set_id random_word_id %}">根据释义写单词</a>
-                |
-                <a href="{% url 'word_to_choice_content' word_set_id random_word_id %}">根据单词选释义</a>
-                |
-                <a href="{% url 'modify_word_set' word_set_id %}">新增单词</a>
-                |
-                <a href="{% url 'my_collector' %}">我的收藏</a>
-
-
+                    </ul>
+                </div>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th >添加</th>
+                            <th>单词</th>
+                            <th>释义</th>
+                            <th class="delete" style="display: none" >删除</th>
+                        </tr>
+                    </thead>
             {% endifequal %}
+
             {% for word in word_pages %}
                 <tbody>
                     <tr>
                         {% if word.id in collector_word_ids %}
-                            <td><a href="{% url 'add_to_collector' word.id %}"><span class="glyphicon glyphicon-minus-sign" style="color: red"></span></a></td>
+                            <td><a href="{% url 'add_to_collector' word.id %}"><span class="glyphicon glyphicon-minus-sign" title="从收藏集中移除" style="color: red"></span></a></td>
                         {% else %}
-                            <td><a href="{% url 'add_to_collector' word.id %}"><span class="glyphicon glyphicon-plus-sign"></span></a></td>
+                            <td><a href="{% url 'add_to_collector' word.id %}"><span class="glyphicon glyphicon-plus-sign" title="添加到收藏集"></span></a></td>
                         {% endif %}
-                        <td>{{ word.word_name }}</td>
+                        <td><a href="{% url 'word_detail' word_set.id word.id %}">{{ word.word_name }}</a></td>
                         <td>{{ word.content }}</td>
+                        <td class="delete" style="display: none">
+                            <a href="{% url 'delete_word' word_set.id word.id %}"><span class="glyphicon glyphicon-remove" style="color: red"></span></a>
+                        </td>
+
                     </tr>
                 </tbody>
             {% endfor %}
-
-        </table>
+            </table>
         </div>
         <div class="paginator">
             <ul class="pagination" >
@@ -99,4 +109,20 @@
             </div>
         </div>
     </div>
+    <div class="col-md-4">
+    </div>
+{% endblock %}
+
+{% block script_extend %}
+    <script type="text/javascript">
+        $(function () {
+            $('#delWord').click(function () {
+                var display = $('.delete').css('display');
+                if (display == 'none'){
+                    alert('温馨提示：删除不可恢复，请慎重操作，点击确定后继续');
+                };
+                $('.delete').toggle()
+            })
+        })
+    </script>
 {% endblock %}

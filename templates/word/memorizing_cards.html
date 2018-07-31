@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% load pronunciation %}
+{% load staticfiles %}
+{% block header_extend %}
+
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+    <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+    <link href="{% static 'word/word.css' %}" rel='stylesheet' type='text/css'>
+    <link href="{% static 'word/tip_cards.css' %}" rel='stylesheet' type='text/css'>
+    <link href="{% static 'word/memorizing_cards.css' %}" rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="{% static 'bootstrap-3.3.7/css/bootstrap.min.css' %}">
+    <script type="text/javascript" src="{% static 'word/jquery-1.9.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'word/jquery.tip_cards.js' %}"></script>
+
+{% endblock %}
+
+{% block title %}
+    单词首页
+{% endblock %}
+
+{% block content %}
+    <ol class="breadcrumb">
+        <span>当前位置：</span>
+        <li><a href="{% url 'word_list' %}">单词首页</a></li>
+        <li>单词集</li>
+        <li><a href="{% url 'word_set' word_set.id %}">{{ word_set.set_name }}</a></li>
+        <li>卡片记忆</li>
+    </ol>
+    <div class="wrapper">
+        <div class="main">
+            <div class="header">
+                <h1>单词卡片记忆</h1>
+            </div>
+            <div class="page-container">
+                <ul class="tips">
+                    {% for word in word_pages %}
+                        <li>
+                            <div class="tc_front">
+                                <p><a href="#tip_{{ word.id }}">{{ word.word_name }}</a></p>
+                            </div>
+                            <div class="tc_back"></div>
+                            <div id="tip_{{ word.id }}" class="tip">
+                                <div class="tc_front">
+                                    <p>{{ word.word_name }}</p>
+                                    <div class="pronunciation">
+                                    <span>美式：</span>
+                                    <div id="btnAudio" class="btn-en-audio-{{ word.id }}" onclick="play('btn-en-audio-{{ word.id }}', 'mp3EnBtn{{ word.id }}')">
+                                        <audio  id="mp3EnBtn{{ word.id }}">
+                                          <source  src="{% word_pronunciation word.word_name 'en' %}" type="audio/mpeg">
+                                        </audio>
+                                    </div>
+                                    <span>英式：</span>
+                                    <div id="btnAudio" class="btn-uk-audio-{{ word.id }}" onclick="play('btn-uk-audio-{{ word.id }}', 'mp3UkBtn{{ word.id }}')">
+                                        <audio id="mp3UkBtn{{ word.id }}">
+                                          <source src="{% word_pronunciation word.word_name 'uk' %}" type="audio/mpeg">
+                                        </audio>
+                                    </div>
+                                </div>
+                                </div>
+                                <div class="tc_back">
+                                    <p>{{ word.content }}</p>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="paginator">
+                    <ul class="pagination" >
+                        {#上一页按钮开始#}
+                        {# 如果当前页有上一页#}
+                        {% if word_pages.has_previous %}
+                            {#  当前页的上一页按钮正常使用#}
+                            <li class="previous"><a href="{% url 'memorizing_cards' word_set.id %}?page={{ word_pages.previous_page_number }}">上一页</a></li>
+                        {% else %}
+                            {# 当前页的不存在上一页时,上一页的按钮不可用#}
+                            <li class="previous disabled"><a href="#">上一页</a></li>
+                        {% endif %}
+                        {#上一页按钮结束#}
+                        {# 页码开始#}
+                        {% for page in page_range %}
+
+                            {% if page == word_pages.number %}
+                                <li class="item active"><a href="{% url 'memorizing_cards' word_set.id %}?page={{ page }}">{{ page }}</a></li>
+                            {% else %}
+                                {% ifequal page '...' %}
+                                    <li class="item "><a >{{ page }}</a></li>
+                                {% else %}
+                                    <li class="item "><a href="{% url 'memorizing_cards' word_set.id %}?page={{ page }}">{{ page }}</a></li>
+                                {% endifequal %}
+                            {% endif %}
+                        {% endfor %}
+                        {#页码结束#}
+                        {# 下一页按钮开始#}
+                        {% if word_pages.has_next %}
+                            <li class="next"><a href="{% url 'memorizing_cards' word_set.id %}?page={{ word_pages.next_page_number }}">下一页</a></li>
+                        {% else %}
+                            <li class="next disabled"><a href="#">下一页</a></li>
+                        {% endif %}
+                        {# 下一页按钮结束#}
+                    </ul>
+                    <div class="page-detail" >
+                        <p>
+                            共有{{ words.count }}个单词，
+                            当前第{{ word_pages.number }}页，
+                            共{{ paginator.num_pages }}页
+
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script_extend %}
+    <script>
+        $(document).ready(function() {
+            $(document).ready(function() {
+                $(".tips").tip_cards();
+            });
+        });
+        function play(cls, id) {
+            //播放完毕
+            var audio = document.getElementById(id);
+
+            $('#'+id).on('ended', function() {
+                console.log("音频已播放完成");
+                $('.' + cls).css({'background':'url({% static "images/stop.png" %}) no-repeat center bottom','background-size':'cover'});
+            });
+            //播放器控制
+
+            audio.volume = .3;
+            event.stopPropagation();//防止冒泡
+            if(audio.paused){ //如果当前是暂停状态
+                $('.' + cls).css({'background':'url({% static "images/start.png" %}) no-repeat center bottom','background-size':'cover'});
+                audio.play(); //播放
+            }else{//当前是播放状态
+                $('.' + cls).css({'background':'url({% static "images/stop.png" %}) no-repeat center bottom','background-size':'cover'});
+                audio.pause(); //暂停
+            }
+        }
+    </script>
+{% endblock %}

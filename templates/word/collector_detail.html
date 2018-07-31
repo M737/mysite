@@ -10,12 +10,55 @@
 {% endblock %}
 
 {% block content %}
-    <div class="col-md-4">
-    </div>
+
     <div class="col-md-8">
-        <h3>{{ collector.collector_name }}</h3>
-        {% for word in words %}
-            <p>{{ word.word_name }}:{{ word.content }}</p>
-        {% endfor %}
+        <ol class="breadcrumb">
+            <span>当前位置：</span>
+            <li><a href="{% url 'word_list' %}">单词首页</a></li>
+            <li><a href="{% url 'my_collector' %}">收藏集</a></li>
+            <li>{{ collector.collector_name }}</li>
+        </ol>
+{#        <h3>{{ collector.collector_name }}</h3>#}
+{#        {% for word in words %}#}
+{#            <p>{{ word.word_name }}:{{ word.content }}</p>#}
+{#        {% endfor %}#}
+        <div class="table">
+            {% ifequal words.all.count 0 %}
+                <div class="alert alert-warning">
+                    <h3>暂无单词， 请去单词集去收藏</h3>
+                </div>
+
+            {% else %}
+                <div class="function-area">
+                    <ul>
+                        <li><a class="btn btn-primary" href="{% url 'memorizing_words' collector.id first_word.id %}">随机记忆单词</a></li>
+                        <li><a class="btn btn-success" href="{% url 'content_to_write_word' collector.id first_word.id %}">根据释义写单词</a></li>
+                        <li><a class="btn btn-info" href="{% url 'word_to_choice_content' collector.id  first_word.id %}">根据单词选释义</a></li>
+                    </ul>
+                </div>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th >移除</th>
+                            <th>单词</th>
+                            <th>释义</th>
+                            <th>来自</th>
+                        </tr>
+                    </thead>
+            {% endifequal %}
+
+            {% for word in words %}
+                <tbody>
+                    <tr>
+                        <td ><a title="移出收藏集" href="{% url 'add_to_collector' word.id %}"><span class="glyphicon glyphicon-minus-sign" style="color: red"></span></a></td>
+                        <td>{{ word.word_name }}</td>
+                        <td>{{ word.content }}</td>
+                        <td>{{ word.word_set.set_name }}</td>
+                    </tr>
+                </tbody>
+            {% endfor %}
+            </table>
+        </div>
     </div>
+    <div class="col-md-4"></div>
 {% endblock %}

@@ -11,89 +11,127 @@
 {% endblock %}
 
 {% block content %}
-    <div class="col-md-4">
-        <form action="" method="POST">
-            <div class="search-box">
-            {% csrf_token %}
-                <input type="text" class="home-search-bar" name="keyword" value="请输入关键字进行搜索"
-                onfocus='if(this.value=="请输入关键字进行搜索"){this.value="";}; '
-                onblur='if(this.value==""){this.value="请输入关键字进行搜索";};'>
-                <input type="submit" class="home-search-button" value="搜索">
-            </div>
-        </form>
-        <p><a href="{% url 'create_word_set' %}">新增单词集</a></p>
-    </div>
+
     <div class="col-md-8">
-        <h3>{{ word_set.set_name }}</h3>
+        <ol class="breadcrumb">
+            <span>当前位置：</span>
+            <li><a href="{% url 'word_list' %}">单词首页</a></li>
+            <li>单词集</li>
+            <li><a href="{% url 'word_set' word_set.id %}">{{ word_set.set_name }}</a></li>
+            <li>根据单词选释义</li>
+        </ol>
         <br>
         <p>{{ word.word_name}}</p>
         <div class="pronunciation">
             <span>美式：</span>
-            <div class="btn-audio">
-                <audio  id="mp3Btn">
+            <div id="btnAudio" class="btn-en-audio" onclick="play('btn-en-audio', 'mp3EnBtn')">
+                <audio  id="mp3EnBtn">
                   <source  src="{% word_pronunciation word.word_name 'en' %}" type="audio/mpeg">
                 </audio>
             </div>
-{#            <span>英式：</span>#}
-{#            <div class="btn-audio">#}
-{#                <audio id="mp3Btn">#}
-{#                  <source src="{% word_pronunciation word.word_name 'uk' %}" type="audio/mpeg">#}
-{#                </audio>#}
-{#            </div>#}
+            <span>英式：</span>
+            <div id="btnAudio" class="btn-uk-audio" onclick="play('btn-uk-audio', 'mp3UkBtn')">
+                <audio id="mp3UkBtn">
+                  <source src="{% word_pronunciation word.word_name 'uk' %}" type="audio/mpeg">
+                </audio>
+            </div>
         </div>
 
 {#        <p>{{ word.content }}</p>#}
 
         <form action="" method="post">
             {% csrf_token %}
-{#            {% for sample_word in sample_words %}#}
-{#                <p><input type="radio" name="{{ sample_word.id }}">{{ sample_word.content }}</p>#}
-{#            {% empty %}#}
-{#                <p>暂无选项</p>#}
-{#            {% endfor %}#}
-            {{ choice_form.choice }}
-            <input type="submit" value="提交">
+                {{ choice_form.choice }}
+            <input style="display: none" id="submit" type="submit" value="提交">
 
         </form>
 
-        {% if message %}
-            {% if not is_correct %}
-                <p class="text-danger">{{ message }}</p>
-                提示：{{ word.word_name.0 }}
-            {% else %}
-                <p class="text-success">{{ message }}</p>
-            {% endif %}
-        {% endif %}
+        <div class="message" style="color:#ff2222"></div>
         <br>
-        <p><a href="{% url 'word_to_choice_content' word_set.id previous_word_id %}">前一个单词</a></p>
-        <p><a href="{% url 'word_to_choice_content' word_set.id next_word_id %}">后一个单词</a></p>
+        {% ifnotequal first_word.id word.id %}
+            <p><a href="{% url 'word_to_choice_content' word_set.id previous_word_id %}">前一个单词</a></p>
+        {% else %}
+            <p>这是第一个单词</p>
+        {% endifnotequal %}
+
+        {% ifnotequal  last_word.id word.id %}
+            <p><a href="{% url 'word_to_choice_content' word_set.id next_word_id %}">后一个单词</a></p>
+        {% else %}
+            <p>这是最后一个单词</p>
+        {% endifnotequal %}
         <p><a href="{% url 'word_to_choice_content' word_set.id random_word_id %}">随机单词</a></p>
 
+    <!--提示 -->
+    <div class="modal fade " id="message" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog " role="document">
+            <div class="modal-content">
+              恭喜你答对了
+            </div>
+        </div>
+    </div>
+
+    </div>
+    <div class="col-md-4">
     </div>
 {% endblock %}
 
 {% block script_extend %}
     <script type="text/javascript">
-        $(function(){
+        function play(cls, id) {
             //播放完毕
-            $('#mp3Btn').on('ended', function() {
+            var audio = document.getElementById(id);
+
+            $('#'+id).on('ended', function() {
                 console.log("音频已播放完成");
-                $('.btn-audio').css({'background':'url({% static "images/stop.png" %}) no-repeat center bottom','background-size':'cover'});
+                $('.' + cls).css({'background':'url({% static "images/stop.png" %}) no-repeat center bottom','background-size':'cover'});
             });
             //播放器控制
-            var audio = document.getElementById('mp3Btn');
+
             audio.volume = .3;
-            $('.btn-audio').click(function() {
-                event.stopPropagation();//防止冒泡
-                if(audio.paused){ //如果当前是暂停状态
-                    $('.btn-audio').css({'background':'url({% static "images/start.png" %}) no-repeat center bottom','background-size':'cover'});
-                    audio.play(); //播放
-                    return;
-                }else{//当前是播放状态
-                    $('.btn-audio').css({'background':'url({% static "images/stop.png" %}) no-repeat center bottom','background-size':'cover'});
-                    audio.pause(); //暂停
+            event.stopPropagation();//防止冒泡
+            if(audio.paused){ //如果当前是暂停状态
+                $('.' + cls).css({'background':'url({% static "images/start.png" %}) no-repeat center bottom','background-size':'cover'});
+                audio.play(); //播放
+            }else{//当前是播放状态
+                $('.' + cls).css({'background':'url({% static "images/stop.png" %}) no-repeat center bottom','background-size':'cover'});
+                audio.pause(); //暂停
+            }
+        }
+
+        $(function () {
+            $("input[name='choice']").click(function () {
+                var choice_id = $(this).val();
+                var correct_num = 0;
+                var false_num = 0;
+                if(choice_id == {{ word.id }}){
+                    $('.message').text('恭喜你选对了');
+                    $.ajax({
+                        url: '{% url 'learning_record' %}',
+                        type: 'GET',
+                        data: {'word': ''},
+                        cache:false
+                    });
+                    correct_num += 1;
+                    // $('#message').modal('toggle');  调用模态框
+                    setTimeout(function () {
+                        if({{ word.id }} == {{ last_word.id }}){
+                            alert('结束了')
+                        }
+                        $(location).attr('href', '{% url 'word_to_choice_content' word_set.id next_word_id %}');
+                    }, 500);
+
+                }else {
+                    $('.message').text('再考虑考虑');
+                    $.ajax({
+                        url: '{% url 'learning_record'%}',
+                        type: 'GET',
+                        data: {'word': '{{ word }}'},
+                        cache:false
+                    })
                 }
-            });
+            })
+
         })
+
     </script>
 {% endblock %}

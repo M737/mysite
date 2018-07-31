@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% load staticfiles %}
 {% block header_extend %}
 {% endblock %}
 
@@ -8,42 +9,191 @@
 {% endblock %}
 
 {% block content %}
-    <div class="col-md-4">
+
+    <div class="col-md-9">
+        <ol class="breadcrumb">
+            <span>当前位置：</span>
+            <li>单词首页</a></li>
+        </ol>
+        <div class="word-set-title">
+            <h3>单词集</h3>
+        </div>
+
+        <hr>
+        <div class="col-md-12">
+            {% for word_set in word_sets %}
+                <ul>
+                    <div class="col-md-6" >
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <li><span class="glyphicon glyphicon-book"> </span><a href="{% url 'word_set' word_set.id %}"> {{ word_set.set_name }}</a></li>
+                        </div>
+                    </div>
+                    </div>
+                </ul>
+
+            {% empty %}
+                <div class="alert alert-warning">
+                    <h3>暂无单词集， 请<span><a data-toggle="modal" data-target="#createWordSet">创建</a></span>单词集</h3>
+                </div>
+            {% endfor %}
+        </div>
+
+        <br>
+        <div class="collector-title">
+            <h3><a href="{% url 'my_collector' %}">收藏集</a></h3>
+        </div>
+        <hr>
+        <div class="col-md-12">
+            {% for collector in collectors %}
+                <ul>
+                    <div class="col-md-6" >
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <ul>
+                                    <li><span class="glyphicon glyphicon-inbox"></span><a href="{% url 'collector_detail' collector.id %}"> {{ collector.collector_name }}</a>
+                                    {% ifequal collector.id default_collector_id %}
+                                        <span><a href="{% url 'set_default_collector' collector.id %}" title="设置为默认收藏集"><span class="glyphicon glyphicon-star" style="color: #f22" ></span></a></span>
+                                    {% else %}
+                                        <span><a href="{% url 'set_default_collector' collector.id %}" title="设置为默认收藏集"><span class="glyphicon glyphicon-star-empty"></span></a></span>
+                                    {% endifequal %}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </ul>
+            {% empty %}
+                {% if request.user.is_authenticated %}
+                    <p>暂无收藏集,默认为“我的收藏”，可自定义<a data-toggle="modal" data-target="#createCollector">创建</a>多个收藏集</p>
+                {% else %}
+                     <p>
+                        <span>未登录，请<a class="btn btn-primary" href="{% url 'login' %}">登录</a>或 <a class="btn btn-warning" href="{% url 'register' %}">注册</a></span>
+                    </p>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-md-3">
         <form action="" method="POST">
-            <div class="search-box">
             {% csrf_token %}
-                <input type="text" class="home-search-bar" name="keyword" value="请输入关键字进行搜索"
-                onfocus='if(this.value=="请输入关键字进行搜索"){this.value="";}; '
-                onblur='if(this.value==""){this.value="请输入关键字进行搜索";};'>
-                <input type="submit" class="home-search-button" value="搜索">
+            <div class="search-box">
+                 <div class="input-group">
+                     <input type="text" name="keyword" class="form-control" placeholder="请输入关键字进行搜索...">
+                     <span class="input-group-btn">
+                         <input  class="btn btn-default" type="submit" value="搜索">
+                     </span>
+                </div>
             </div>
         </form>
         <br>
-        <p><a href="{% url 'create_word_set' %}">新增单词集</a></p>
-        <br>
-        <p><a href="{% url 'create_collector' %}">新增收藏集</a></p>
-    </div>
-    <div class="col-md-8">
-        <h3>单词集</h3>
-        {% for word_set in word_sets %}
-            <ul>
-                <li><a href="{% url 'word_set' word_set.id %}">{{ word_set }}</a></li>
+        <div class="dropdown">
+            <button id="dLabel" class="btn btn-success" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                卡片记忆
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dLabel">
+                {% for word_set in word_sets %}
+                    <li><a href="{% url 'memorizing_cards' word_set.id %}">{{ word_set.set_name }}</a></li>
+                {% empty %}
+                    <li>暂无单词集</li>
+                {% endfor %}
             </ul>
-
-        {% empty %}
-            <h3>暂无单词集， 请<span><a href="{% url 'create_word_set' %}">创建</a></span>单词集</h3>
-        {% endfor %}
-
+        </div>
         <br>
-        <h3><a href="{% url 'my_collector' %}">收藏集</a></h3>
-        {% for collector in collectors %}
-            <p><a href="{% url 'collector_detail' collector.id %}">{{ collector.collector_name }}</a></p>
-        {% empty %}
-            {% if request.user.is_authenticated %}
-                <p>暂无收藏集,默认为“我的收藏”，可自定义<a href="{% url 'create_collector' %}">创建</a>多个收藏集</p>
-            {% else %}
-                <p>你还没有登录哦，前往<a href="{% url 'register' %}">注册</a>或者<a href="{% url 'login' %}">登录</a></p>
-            {% endif %}
-        {% endfor %}
+        {% if request.user.is_authenticated %}
+            <p>
+                <button class="btn btn-warning"  data-toggle="modal" data-target="#createWordSet" title="创建单词集，为单词库添砖加瓦，也可以创建属于自己的单词集，为自己制定背范围">新增单词集</button>
+            </p>
+            <br>
+            <p>
+                <button class="btn btn-primary"  data-toggle="modal" data-target="#createCollector"  title="创建收藏集，可以在单词页面添加单词到该收藏集">新增收藏集</button>
+            </p>
+        {% else %}
+            <p>
+                <a class="btn btn-primary" href="{% url 'login' %}">新增单词集</a>
+            </p>
+            <br>
+            <p>
+                <a class="btn btn-primary" href="{% url 'login' %}">新增收藏集</a>
+            </p>
+        {% endif %}
+        <div class="game">
+            <div class="panel panel-default">
+                <div class="panel-heading">小仓鼠</div>
+                <div class="panel-body">
+                    <object style="outline: none;" data="{% static 'swf/hamster.swf' %}" type="application/x-shockwave-flash" width="220px">
+                        <param name="movie" value="{% static 'swf/hamster.swf' %}">
+                        <param name="AllowScriptAccess" value="always">
+                        <param name="wmode" value="opaque">
+                    </object>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">牛顿摆</div>
+                <div class="panel-body">
+                    <object style="outline: none;" data="{% static 'swf/newtonsCradle.swf' %}" type="application/x-shockwave-flash" width="200px">
+                        <param name="movie" value="{% static 'swf/newtonsCradle.swf' %}">
+                        <param name="AllowScriptAccess" value="always">
+                        <param name="wmode" value="opaque">
+                    </object>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- modal createWordSet -->
+    <div class="modal fade" id="createWordSet" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">新增单词集</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'update_word_set' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <ul>
+                                <li><span>{{ word_form.word_set.label }}:</span>{{ word_form.word_set}}</li>
+                                <li><span>{{ word_form.add_word.label }}:</span>{{ word_form.add_word }}</li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">退出</button>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal createWordSet end -->
+
+    <!-- modal createCollector -->
+    <div class="modal fade" id="createCollector" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">新增收藏集</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'create_collector' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ collector_form.collector_name.label }}:</span>{{ collector_form.collector_name}}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">退出</button>
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- modal createCollector end -->
+
 {% endblock %}

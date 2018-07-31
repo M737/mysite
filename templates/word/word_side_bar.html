@@ -1,0 +1,17 @@
+<div>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <div class="search-box">
+             <div class="input-group">
+                 <input type="text" name="keyword" class="form-control" placeholder="请输入关键字进行搜索...">
+                 <span class="input-group-btn">
+                     <input  class="btn btn-default" type="submit" value="搜索">
+                 </span>
+            </div>
+        </div>
+    </form>
+    <br>
+    <p><a href="{% url 'create_word_set' %}">新增单词集</a></p>
+    <br>
+    <p><a href="{% url 'create_collector' %}">新增收藏集</a></p>
+</div>
